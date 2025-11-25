@@ -1,0 +1,1016 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Racer Extreme - The Ultimate Math Challenge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #2ec4b6;
+            --danger: #e71d36;
+            --warning: #ff9f1c;
+            --success: #2ec4b6;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .game-container {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Road Design */
+        .road {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80%;
+            background: linear-gradient(90deg, #333 0%, #444 50%, #333 100%);
+            overflow: hidden;
+        }
+
+        .road-lines {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 200%;
+            background: repeating-linear-gradient(to bottom, yellow, yellow 40px, transparent 40px, transparent 80px);
+            animation: roadMove 1s linear infinite;
+            transform: translateX(-50%);
+        }
+
+        @@keyframes roadMove {
+            0% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            100% {
+                transform: translateX(-50%) translateY(-80px);
+            }
+        }
+
+        .player-car {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff4444, #ff6b6b);
+            border-radius: 15px 15px 5px 5px;
+            transition: left 0.1s ease;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+        }
+
+            .player-car::before {
+                content: '';
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                height: 60px;
+                background: linear-gradient(135deg, #88ccff, #aaddff);
+                border-radius: 8px;
+            }
+
+            .player-car::after {
+                content: '';
+                position: absolute;
+                bottom: -10px;
+                left: 15px;
+                right: 15px;
+                height: 20px;
+                background: #333;
+                border-radius: 50%;
+            }
+
+        .game-header {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .stats-card {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--warning);
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--light);
+            opacity: 0.8;
+        }
+
+        .math-problem-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 50px rgba(255, 107, 53, 0.3);
+            min-width: 400px;
+            text-align: center;
+            z-index: 200;
+        }
+
+        .question {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--secondary), #26a69a);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+            .option-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                background: linear-gradient(135deg, #34e0cb, #2ec4b6);
+            }
+
+            .option-btn.correct {
+                background: linear-gradient(135deg, #00b894, #00a085);
+                animation: pulseCorrect 0.6s ease;
+            }
+
+            .option-btn.wrong {
+                background: linear-gradient(135deg, #e74c3c, #c0392b);
+                animation: shakeWrong 0.6s ease;
+            }
+
+        @@keyframes pulseCorrect {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 30px #00b894;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @@keyframes shakeWrong {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .timer-container {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px solid var(--warning);
+            backdrop-filter: blur(10px);
+            z-index: 150;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .timer-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--light);
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+            transition: width 0.1s linear;
+            border-radius: 6px;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .time-left {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--warning);
+            margin-top: 5px;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+            backdrop-filter: blur(15px);
+        }
+
+            .screen h1 {
+                font-size: 4em;
+                margin-bottom: 20px;
+                background: linear-gradient(135deg, var(--primary), var(--warning));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                color: transparent;
+                text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            }
+
+            .screen h2 {
+                font-size: 2em;
+                margin-bottom: 30px;
+                color: var(--light);
+            }
+
+        .btn-start {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, var(--primary), var(--warning));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+            .btn-start:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(255, 107, 53, 0.5);
+            }
+
+        .leaderboard-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 3px solid var(--secondary);
+            min-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 300;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .leaderboard-item:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateX(5px);
+            }
+
+        .rank {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--warning);
+            min-width: 40px;
+        }
+
+        .player-name {
+            flex-grow: 1;
+            margin: 0 20px;
+            font-weight: bold;
+        }
+
+        .player-score {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .level-progress {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .level-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--secondary));
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        @@media (max-width: 768px) {
+            .math-problem-container {
+                min-width: 90%;
+                padding: 20px;
+            }
+
+            .question {
+                font-size: 2em;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Start Screen -->
+        <div class="screen" id="startScreen">
+            <h1>🚗 MATH RACER EXTREME 🚗</h1>
+            <h2>Solve Math Problems • Race to Victory • Beat Your Friends</h2>
+            <div class="mb-4" style="width: 300px;">
+                <input type="text" id="playerNameInput" class="form-control form-control-lg"
+                       placeholder="Enter your name" style="text-align: center; font-size: 1.2em;">
+                <div id="nameHint" class="form-text text-info mt-1">
+                    <i class="fas fa-info-circle"></i> Same name = multiple attempts in leaderboard!
+                </div>
+                <div id="nameError" class="text-danger mt-1" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i> Please enter a name!
+                </div>
+            </div>
+            <!-- THIS IS THE MISSING BUTTON -->
+            <button class="btn-start" onclick="startGame()">
+                <i class="fas fa-play-circle"></i> START RACE
+            </button>
+            <div class="mt-4">
+                <button class="btn btn-outline-warning btn-lg" onclick="showLeaderboard()">
+                    <i class="fas fa-trophy"></i> View Leaderboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Game UI -->
+        <div class="game-header">
+            <div class="stats-card">
+                <div class="stat-label">LEVEL</div>
+                <div class="stat-value" id="currentLevel">1</div>
+            </div>
+            <div class="stats-card">
+                <div class="stat-label">SCORE</div>
+                <div class="stat-value" id="currentScore">0</div>
+            </div>
+            <div class="stats-card" id="speedCard">
+                <div class="stat-label">SPEED</div>
+                <div class="stat-value" id="currentSpeed">0%</div>
+            </div>
+            <div class="stats-card">
+                <div class="stat-label">COMBO</div>
+                <div class="stat-value" id="comboMultiplier">1x</div>
+            </div>
+        </div>
+
+        <!-- Enhanced Timer -->
+        <div class="timer-container" id="timerContainer" style="display: none;">
+            <div class="timer-text">TIME LEFT</div>
+            <div class="timer-bar">
+                <div class="timer-fill" id="timerFill" style="width: 100%"></div>
+            </div>
+            <div class="time-left" id="timeLeft">10.0s</div>
+        </div>
+
+        <!-- Enhanced Math Problem -->
+        <div class="math-problem-container" id="mathProblemContainer" style="display: none;">
+            <div class="question" id="question">5 + 3 = ?</div>
+            <div class="options-grid" id="optionsContainer">
+                <!-- Options populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Enhanced Road with Car -->
+        <div class="road">
+            <div class="road-lines"></div>
+            <div class="player-car" id="playerCar"></div>
+        </div>
+
+        <!-- Level Progress -->
+        <div class="level-progress">
+            <div class="level-progress-fill" id="levelProgress" style="width: 0%"></div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen" id="gameOverScreen" style="display: none;">
+            <h1>🏁 RACE COMPLETE! 🏁</h1>
+            <h2>Final Score: <span id="finalScore" class="text-warning">0</span></h2>
+            <h3>Level Reached: <span id="finalLevel" class="text-success">1</span></h3>
+            <h4>Correct Answers: <span id="finalCorrect" class="text-info">0</span>/<span id="finalTotal" class="text-info">0</span></h4>
+            <div class="mt-4">
+                <button class="btn-start" onclick="restartGame()">
+                    <i class="fas fa-redo"></i> RACE AGAIN
+                </button>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-outline-info btn-lg" onclick="showLeaderboard()">
+                    <i class="fas fa-trophy"></i> Leaderboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Enhanced Leaderboard Screen -->
+        <div class="screen" id="leaderboardScreen" style="display: none;">
+            <h1>🏆 LEADERBOARD 🏆</h1>
+            <div class="leaderboard-container">
+                <div id="leaderboardContent">
+                    <!-- Leaderboard populated by JavaScript -->
+                </div>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-warning btn-lg" onclick="hideLeaderboard()">
+                        <i class="fas fa-arrow-left"></i> Back to Game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+               class UltraAddictiveMathRacer {
+            constructor() {
+                this.gameState = 'start';
+                this.score = 0;
+                this.level = 1;
+                this.currentProblemNumber = 1;
+                this.problemsPerLevel = 5;
+                this.speed = 0;
+                this.combo = 0;
+                this.comboMultiplier = 1;
+                this.correctAnswers = 0;
+                this.totalQuestions = 0;
+                this.playerName = '';
+                this.playerId = null;
+                this.currentProblem = null;
+                this.baseTime = 10;
+                this.currentTime = this.baseTime;
+                this.timerInterval = null;
+                this.gameStartTime = null;
+
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    if (this.gameState !== 'playing') return;
+
+                    const car = document.getElementById('playerCar');
+                    let currentLeft = parseInt(car.style.left) || 50;
+
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            currentLeft = Math.max(10, currentLeft - 15);
+                            break;
+                        case 'ArrowRight':
+                            currentLeft = Math.min(90, currentLeft + 15);
+                            break;
+                        case ' ':
+                            this.boost();
+                            break;
+                    }
+
+                    car.style.left = currentLeft + '%';
+                });
+
+                // Hide the info message when input is empty
+                document.getElementById('playerNameInput').addEventListener('input', (e) => {
+                    const nameHint = document.getElementById('nameHint');
+                    if (e.target.value.trim() === '') {
+                        nameHint.style.display = 'none';
+                    } else {
+                        nameHint.style.display = 'block';
+                    }
+                });
+            }
+
+            async startGame() {
+                const playerName = document.getElementById('playerNameInput').value.trim();
+                if (!playerName) {
+                    alert('Please enter your player name!');
+                    return;
+                }
+
+                this.playerName = playerName;
+                this.gameState = 'playing';
+                this.gameStartTime = Date.now();
+
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('mathProblemContainer').style.display = 'block';
+                document.getElementById('timerContainer').style.display = 'block';
+
+                this.resetGame();
+                this.generateProblem();
+                this.startTimer();
+            }
+
+            resetGame() {
+                this.score = 0;
+                this.level = 1;
+                this.currentProblemNumber = 1;
+                this.speed = 0;
+                this.combo = 0;
+                this.comboMultiplier = 1;
+                this.correctAnswers = 0;
+                this.totalQuestions = 0;
+                this.currentTime = this.baseTime;
+
+                this.updateDisplay();
+            }
+
+            calculateTimeLimit() {
+                const speedReduction = Math.min(6, Math.floor(this.speed / 20));
+                const levelReduction = Math.min(3, this.level - 1);
+                return Math.max(4, this.baseTime - speedReduction - levelReduction);
+            }
+
+            async generateProblem() {
+                try {
+                    const response = await fetch(`/api/game/new-problem/${this.level}`);
+                    this.currentProblem = await response.json();
+                    this.displayProblem();
+                    this.resetTimer();
+                } catch (error) {
+                    console.error('Error generating problem:', error);
+                    // Fallback problem
+                    this.currentProblem = {
+                        question: "5 + 3 = ?",
+                        correctAnswer: 8,
+                        options: [6, 7, 8, 9]
+                    };
+                    this.displayProblem();
+                    this.resetTimer();
+                }
+            }
+
+            displayProblem() {
+                document.getElementById('question').textContent = this.currentProblem.question;
+
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = '';
+
+                this.currentProblem.options.forEach((option) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.onclick = () => this.checkAnswer(option);
+                    optionsContainer.appendChild(button);
+                });
+            }
+
+            async checkAnswer(selectedAnswer) {
+                if (this.gameState !== 'playing') return;
+
+                clearInterval(this.timerInterval);
+                const timeTaken = this.calculateTimeLimit() - this.currentTime;
+                const isCorrect = this.currentProblem.correctAnswer === selectedAnswer;
+
+                // Visual feedback
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.remove('correct', 'wrong');
+                    if (parseInt(btn.textContent) === this.currentProblem.correctAnswer) {
+                        setTimeout(() => btn.classList.add('correct'), 300);
+                    } else if (parseInt(btn.textContent) === selectedAnswer && !isCorrect) {
+                        setTimeout(() => btn.classList.add('wrong'), 300);
+                    }
+                });
+
+                if (isCorrect) {
+                    this.handleCorrectAnswer(timeTaken);
+                } else {
+                    this.handleWrongAnswer();
+                }
+
+                setTimeout(() => {
+                    if (this.gameState === 'playing') {
+                        this.nextProblem();
+                    }
+                }, 1500);
+            }
+
+            handleCorrectAnswer(timeTaken) {
+                this.correctAnswers++;
+                this.totalQuestions++;
+                this.combo++;
+
+                // Calculate score
+                const baseScore = this.level * 30;
+                const timeBonus = Math.max(0, this.calculateTimeLimit() - timeTaken) * 8;
+                const comboBonus = Math.min(15, this.combo) * 15;
+                const speedBonus = this.speed * 1.5;
+
+                const earnedScore = Math.floor((baseScore + timeBonus + comboBonus + speedBonus) * this.comboMultiplier);
+
+                this.score += earnedScore;
+                this.speed = Math.min(100, this.speed + 8);
+                this.comboMultiplier = 1 + (Math.floor(this.combo / 4) * 0.3);
+
+                this.showFloatingText(`+${earnedScore}`, 'success');
+                this.boost();
+                this.updateDisplay();
+            }
+
+            handleWrongAnswer() {
+                this.totalQuestions++;
+                this.combo = 0;
+                this.comboMultiplier = 1;
+                this.speed = Math.max(0, this.speed - 20);
+
+                this.showFloatingText('Wrong! -20 Speed', 'danger');
+
+                if (this.speed <= 0) {
+                    this.endGame();
+                }
+
+                this.updateDisplay();
+            }
+
+            nextProblem() {
+                this.currentProblemNumber++;
+
+                if (this.currentProblemNumber > this.problemsPerLevel) {
+                    this.levelUp();
+                } else {
+                    this.generateProblem();
+                }
+            }
+
+            levelUp() {
+                this.level++;
+                this.currentProblemNumber = 1;
+
+                this.showFloatingText(`LEVEL ${this.level} UNLOCKED!`, 'warning');
+                this.score += 300;
+                this.speed += 25;
+
+                this.updateLevelProgress();
+
+                setTimeout(() => {
+                    if (this.gameState === 'playing') {
+                        this.generateProblem();
+                    }
+                }, 2000);
+            }
+
+            updateLevelProgress() {
+                const progress = ((this.currentProblemNumber - 1) / this.problemsPerLevel) * 100;
+                document.getElementById('levelProgress').style.width = progress + '%';
+            }
+
+            boost() {
+                const speedCard = document.getElementById('speedCard');
+                speedCard.classList.add('boost');
+                setTimeout(() => {
+                    speedCard.classList.remove('boost');
+                }, 500);
+            }
+
+            showFloatingText(text, type) {
+                const floatingText = document.createElement('div');
+                floatingText.textContent = text;
+                floatingText.style.cssText = `
+                    position: absolute;
+                    top: 40%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 2em;
+                    font-weight: bold;
+                    color: ${type === 'success' ? '#2ec4b6' : type === 'danger' ? '#e71d36' : '#ff9f1c'};
+                    z-index: 250;
+                    animation: floatUp 1.5s ease-out forwards;
+                    text-shadow: 0 0 15px currentColor;
+                    pointer-events: none;
+                `;
+
+                document.querySelector('.game-container').appendChild(floatingText);
+
+                setTimeout(() => {
+                    floatingText.remove();
+                }, 1500);
+            }
+
+            startTimer() {
+                this.resetTimer();
+            }
+
+            resetTimer() {
+                clearInterval(this.timerInterval);
+                this.currentTime = this.calculateTimeLimit();
+                this.updateTimerDisplay();
+
+                this.timerInterval = setInterval(() => {
+                    this.currentTime -= 0.1;
+                    this.updateTimerDisplay();
+
+                    if (this.currentTime <= 0) {
+                        this.handleTimeUp();
+                    }
+                }, 100);
+            }
+
+            updateTimerDisplay() {
+                const timeLimit = this.calculateTimeLimit();
+                const percentage = (this.currentTime / timeLimit) * 100;
+
+                document.getElementById('timerFill').style.width = percentage + '%';
+                document.getElementById('timeLeft').textContent = this.currentTime.toFixed(1) + 's';
+
+                // Color changes based on time left
+                const timerFill = document.getElementById('timerFill');
+                if (percentage > 60) {
+                    timerFill.style.background = 'linear-gradient(90deg, #2ec4b6, #2ec4b6)';
+                } else if (percentage > 30) {
+                    timerFill.style.background = 'linear-gradient(90deg, #ff9f1c, #ff9f1c)';
+                } else {
+                    timerFill.style.background = 'linear-gradient(90deg, #e71d36, #e71d36)';
+                    timerFill.style.animation = 'pulseCritical 0.5s infinite';
+                }
+            }
+
+            handleTimeUp() {
+                clearInterval(this.timerInterval);
+                this.handleWrongAnswer();
+                if (this.gameState === 'playing') {
+                    setTimeout(() => this.nextProblem(), 1000);
+                }
+            }
+
+            updateDisplay() {
+                document.getElementById('currentScore').textContent = this.score;
+                document.getElementById('currentLevel').textContent = this.level;
+                document.getElementById('currentSpeed').textContent = this.speed + '%';
+                document.getElementById('comboMultiplier').textContent = this.comboMultiplier.toFixed(1) + 'x';
+                this.updateLevelProgress();
+            }
+
+            async endGame() {
+                this.gameState = 'gameOver';
+                clearInterval(this.timerInterval);
+
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalLevel').textContent = this.level;
+                document.getElementById('finalCorrect').textContent = this.correctAnswers;
+                document.getElementById('finalTotal').textContent = this.totalQuestions;
+
+                document.getElementById('mathProblemContainer').style.display = 'none';
+                document.getElementById('timerContainer').style.display = 'none';
+                document.getElementById('gameOverScreen').style.display = 'flex';
+
+                await this.saveGameSession();
+            }
+
+            async saveGameSession() {
+                const timePlayed = Date.now() - this.gameStartTime;
+
+                try {
+                    const session = {
+                        playerId: this.playerId || 0,
+                        player: { username: this.playerName },
+                        score: this.score,
+                        level: this.level,
+                        correctAnswers: this.correctAnswers,
+                        wrongAnswers: this.totalQuestions - this.correctAnswers,
+                        timeTakenMs: timePlayed,
+                        startedAt: new Date(this.gameStartTime),
+                        completedAt: new Date(),
+                        speedMultiplier: this.speed / 100
+                    };
+
+                    await fetch('/api/game/save-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(session)
+                    });
+                } catch (error) {
+                    console.error('Error saving game:', error);
+                }
+            }
+
+            async showLeaderboard() {
+                try {
+                    const response = await fetch('/api/game/leaderboard');
+                    const leaderboard = await response.json();
+
+                    const leaderboardContent = document.getElementById('leaderboardContent');
+                    leaderboardContent.innerHTML = '';
+
+                    if (leaderboard.length === 0) {
+                        leaderboardContent.innerHTML = '<div class="text-center text-muted py-4">No records yet. Be the first champion!</div>';
+                    } else {
+                        // Group by player to show attempt numbers
+                        const playerAttempts = {};
+
+                        leaderboard.forEach((session, index) => {
+                            const username = session.player?.username || 'New Player';
+
+                            // Count attempts for this player
+                            if (!playerAttempts[username]) {
+                                playerAttempts[username] = 1;
+                            } else {
+                                playerAttempts[username]++;
+                            }
+
+                            const attemptNumber = playerAttempts[username];
+                            const displayName = attemptNumber > 1 ? `${username} ${attemptNumber}` : username;
+
+                            const item = document.createElement('div');
+                            item.className = `leaderboard-item ${index < 3 ? 'top-3' : ''}`;
+                            item.innerHTML = `
+                                <div class="rank">#${index + 1}</div>
+                                <div class="player-name">${displayName}</div>
+                                <div class="player-score">${session.score} pts</div>
+                                <div class="player-level">Level ${session.level}</div>
+                            `;
+                            leaderboardContent.appendChild(item);
+                        });
+                    }
+
+                    // Show appropriate screen
+                    if (this.gameState === 'start') {
+                        document.getElementById('startScreen').style.display = 'none';
+                    } else {
+                        document.getElementById('gameOverScreen').style.display = 'none';
+                    }
+                    document.getElementById('leaderboardScreen').style.display = 'flex';
+                } catch (error) {
+                    console.error('Error loading leaderboard:', error);
+                    document.getElementById('leaderboardContent').innerHTML =
+                        '<div class="text-center text-danger py-4">Error loading leaderboard. Please try again.</div>';
+                }
+            }
+
+            hideLeaderboard() {
+                document.getElementById('leaderboardScreen').style.display = 'none';
+                if (this.gameState === 'start') {
+                    document.getElementById('startScreen').style.display = 'flex';
+                } else if (this.gameState === 'gameOver') {
+                    document.getElementById('gameOverScreen').style.display = 'flex';
+                }
+            }
+
+            restartGame() {
+                document.getElementById('gameOverScreen').style.display = 'none';
+                document.getElementById('mathProblemContainer').style.display = 'block';
+                document.getElementById('timerContainer').style.display = 'block';
+                this.startGame();
+            }
+        }
+
+        // Initialize game
+        const game = new UltraAddictiveMathRacer();
+
+        // Global functions for HTML buttons
+        function startGame() {
+            game.startGame();
+        }
+
+        function restartGame() {
+            game.restartGame();
+        }
+
+        function showLeaderboard() {
+            game.showLeaderboard();
+        }
+
+        function hideLeaderboard() {
+            game.hideLeaderboard();
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes floatUp {
+                0% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -100px);
+                }
+            }
+
+            @@keyframes pulseCritical {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+
+            .boost {
+                border-color: var(--warning) !important;
+                box-shadow: 0 0 20px var(--warning) !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Enter key support for player name input
+        document.getElementById('playerNameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+
+        // Hide the info message initially
+        document.getElementById('nameHint').style.display = 'none';
+    </script>
+</body>
+</html>

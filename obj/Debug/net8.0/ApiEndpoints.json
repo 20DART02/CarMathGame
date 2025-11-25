@@ -1,0 +1,108 @@
+[
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "CheckPlayer",
+    "RelativePath": "api/Game/check-player",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CarMathGame.Controllers.PlayerRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "CreatePlayer",
+    "RelativePath": "api/Game/create-player",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CarMathGame.Controllers.PlayerRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "GetOrCreatePlayer",
+    "RelativePath": "api/Game/get-or-create-player",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CarMathGame.Controllers.PlayerRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "GetLeaderboard",
+    "RelativePath": "api/Game/leaderboard",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "GetNewProblem",
+    "RelativePath": "api/Game/new-problem/{level}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "level",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "SaveGameSession",
+    "RelativePath": "api/Game/save-session",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "session",
+        "Type": "CarMathGame.Models.GameSession",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarMathGame.Controllers.GameController",
+    "Method": "ValidateAnswer",
+    "RelativePath": "api/Game/validate-answer",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CarMathGame.Controllers.AnswerValidationRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
