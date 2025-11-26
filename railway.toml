@@ -6,3 +6,6 @@ DOTNET_VERSION = "8.0"
 
 [deploy]
 startCommand = "dotnet CarMathGame.dll"
+
+[[services]]
+type = "web"

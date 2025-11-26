@@ -12,10 +12,16 @@ namespace CarMathGame.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //modelBuilder.Entity<Player>(entity =>
+            //{
+            //    entity.HasIndex(p => p.Username).IsUnique();
+            //    entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            //});
+
             modelBuilder.Entity<Player>(entity =>
             {
                 entity.HasIndex(p => p.Username).IsUnique();
-                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
             });
 
             modelBuilder.Entity<GameSession>(entity =>

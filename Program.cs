@@ -13,8 +13,12 @@ builder.Services.AddControllersWithViews()
     });
 
 // Add DbContext
+//builder.Services.AddDbContext<GameDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Replace SQL Server with PostgreSQL
 builder.Services.AddDbContext<GameDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Game Service
 builder.Services.AddScoped<IMathGameService, MathGameService>();
