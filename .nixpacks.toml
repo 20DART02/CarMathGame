@@ -1,0 +1,11 @@
+[packages]
+dotnet-sdk = "8.0.100"
+
+[phases.build]
+commands = [
+    "dotnet restore",
+    "dotnet publish -c Release -o out"
+]
+
+[start]
+cmd = "dotnet out/CarMathGame.dll"
