@@ -12,11 +12,11 @@ namespace CarMathGame.Controllers
 
         public class GameController : ControllerBase
     {
-        private readonly GameDbContext _context;
+        private readonly IMathGameService _gameService;
 
-        public GameController(GameDbContext gameService)
+        public GameController(IMathGameService gameService)
         {
-            _context = gameService;
+            _gameService = gameService;
         }
 
         [HttpGet("new-problem/{level}")]
