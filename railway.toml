@@ -5,7 +5,7 @@ builder = "NIXPACKS"
 DOTNET_VERSION = "8.0"
 
 [deploy]
-startCommand = "dotnet CarMathGame.dll"
+startCommand = "dotnet out/CarMathGame.dll"
 
 [[services]]
 type = "web"
