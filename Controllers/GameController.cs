@@ -6,9 +6,18 @@ namespace CarMathGame.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GameController(IMathGameService gameService) : ControllerBase
+    //public class GameController(IMathGameService gameService) : ControllerBase
+    //{
+    //    private readonly IMathGameService _gameService = gameService;
+
+    public class GameController : ControllerBase
     {
-        private readonly IMathGameService _gameService = gameService;
+        private readonly GameDbContext _context;
+
+        public GameController(GameDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet("new-problem/{level}")]
         public IActionResult GetNewProblem(int level)

@@ -1,13 +1,24 @@
-﻿using CarMathGame.Models;
-using CarMathGame.Data;
+﻿using CarMathGame.Data;
+using CarMathGame.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace CarMathGame.Services
 {
-    public class MathGameService(GameDbContext context) : IMathGameService
+    //public class MathGameService(GameDbContext context) : IMathGameService
+    //{
+    //    private readonly Random _random = new();
+    //    private readonly GameDbContext _context = context;
+
+    public class MathGameService : IMathGameService
     {
         private readonly Random _random = new();
-        private readonly GameDbContext _context = context;
+        private readonly GameDbContext _context;
+
+        public MathGameService(GameDbContext gameService)
+        {
+            _context = gameService;
+        }
 
         public MathProblem GenerateProblem(int level)
         {
