@@ -1,0 +1,10 @@
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.csproj.AssemblyReference.cache
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.GeneratedMSBuildEditorConfig.editorconfig
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.AssemblyInfoInputs.cache
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.AssemblyInfo.cs
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.csproj.CoreCompileInputs.cache
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.MvcApplicationPartsAssemblyInfo.cache
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.RazorAssemblyInfo.cache
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.RazorAssemblyInfo.cs
+D:\CarMathGame\CarMathGame\CarMathGame\obj\Debug\net8.0\CarMathGame.sourcelink.json

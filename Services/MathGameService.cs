@@ -85,7 +85,9 @@ namespace CarMathGame.Services
                 }
             }
 
-            return [.. options.OrderBy(x => random.Next())];
+            //return [.. options.OrderBy(x => random.Next())];
+            return options.OrderBy(x => random.Next()).ToArray();
+
         }
 
         public bool ValidateAnswer(MathProblem problem, int answer)
