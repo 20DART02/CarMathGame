@@ -15,9 +15,9 @@ namespace CarMathGame.Services
         private readonly Random _random = new();
         private readonly GameDbContext _context;
 
-        public MathGameService(GameDbContext gameService)
+        public MathGameService(GameDbContext context)
         {
-            _context = gameService;
+            _context = context;
         }
 
         public MathProblem GenerateProblem(int level)
