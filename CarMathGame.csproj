@@ -22,4 +22,4 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
 	</ItemGroup>
 
-</Project>
+</Project>	
