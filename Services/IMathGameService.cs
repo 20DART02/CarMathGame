@@ -1,4 +1,7 @@
 ﻿using CarMathGame.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CarMathGame.Services
 {
@@ -7,7 +10,7 @@ namespace CarMathGame.Services
         MathProblem GenerateProblem(int level);
         bool ValidateAnswer(MathProblem problem, int answer);
         int CalculateScore(MathProblem problem, TimeSpan timeTaken);
-        Task<List<GameSession>> GetLeaderboardAsync(int topN = 10);
+        Task<List<LeaderboardDto>> GetLeaderboardAsync(int topN = 10); // Changed return type
         Task<Player> GetOrCreatePlayerAsync(string username, string? email = null);
         Task<Player?> GetPlayerByUsernameAsync(string username);
         Task<Player> CreatePlayerAsync(string username, string? email = null);

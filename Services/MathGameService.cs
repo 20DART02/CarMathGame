@@ -2,6 +2,8 @@
 using CarMathGame.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CarMathGame.Services
 {
@@ -174,12 +176,24 @@ namespace CarMathGame.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<GameSession>> GetLeaderboardAsync(int topN = 10)
+        public async Task<List<LeaderboardDto>> GetLeaderboardAsync(int topN = 10)
         {
             return await _context.GameSessions
                 .Include(gs => gs.Player)
                 .OrderByDescending(gs => gs.Score)
                 .Take(topN)
+                .Select(gs => new LeaderboardDto
+                {
+                    Username = gs.Player.Username,
+                    Score = gs.Score,
+                    Level = gs.Level,
+                    CorrectAnswers = gs.CorrectAnswers,
+                    WrongAnswers = gs.WrongAnswers,
+                    TimeTakenMs = gs.TimeTakenMs,
+                    StartedAt = gs.StartedAt,
+                    CompletedAt = gs.CompletedAt,
+                    SpeedMultiplier = gs.SpeedMultiplier
+                })
                 .AsNoTracking()
                 .ToListAsync();
         }

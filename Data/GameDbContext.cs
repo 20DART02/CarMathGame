@@ -12,11 +12,9 @@ namespace CarMathGame.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Player>(entity =>
-            //{
-            //    entity.HasIndex(p => p.Username).IsUnique();
-            //    entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-            //});
+            // Explicitly set table names to match your PostgreSQL tables
+            modelBuilder.Entity<Player>().ToTable("players");
+            modelBuilder.Entity<GameSession>().ToTable("game_sessions");
 
             modelBuilder.Entity<Player>(entity =>
             {

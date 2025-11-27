@@ -1,6 +1,7 @@
 ﻿using CarMathGame.Models;
 using CarMathGame.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CarMathGame.Controllers
 {
@@ -17,7 +18,7 @@ namespace CarMathGame.Controllers
         public GameController(IMathGameService gameService)
         {
             _gameService = gameService;
-        }
+        }   
 
         [HttpGet("new-problem/{level}")]
         public IActionResult GetNewProblem(int level)
