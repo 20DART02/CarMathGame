@@ -1,11 +1,8 @@
 [build]
-builder = "NIXPACKS"
-
-[build.args]
-DOTNET_VERSION = "8.0"
+builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "dotnet out/CarMathGame.dll"
+startCommand = "dotnet CarMathGame.dll --urls http://0.0.0.0:$PORT"
 
 [[services]]
 type = "web"
