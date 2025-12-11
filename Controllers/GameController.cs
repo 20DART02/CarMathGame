@@ -1,29 +1,26 @@
 ﻿using CarMathGame.Models;
 using CarMathGame.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace CarMathGame.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //public class GameController(IMathGameService gameService) : ControllerBase
-    //{
-    //    private readonly IMathGameService _gameService = gameService;
-
-        public class GameController : ControllerBase
+    public class GameController : ControllerBase
     {
         private readonly IMathGameService _gameService;
 
         public GameController(IMathGameService gameService)
         {
             _gameService = gameService;
-        }   
+        }
 
-        [HttpGet("new-problem/{level}")]
-        public IActionResult GetNewProblem(int level)
+        [HttpGet("new-problem/{speed}")]
+        public IActionResult GetNewProblem(int speed)
         {
-            var problem = _gameService.GenerateProblem(level);
+            var problem = _gameService.GenerateProblem(speed);
             return Ok(problem);
         }
 
@@ -31,7 +28,7 @@ namespace CarMathGame.Controllers
         public IActionResult ValidateAnswer([FromBody] AnswerValidationRequest request)
         {
             var isValid = _gameService.ValidateAnswer(request.Problem, request.Answer);
-            var score = isValid ? _gameService.CalculateScore(request.Problem, request.TimeTaken) : 0;
+            var score = isValid ? _gameService.CalculateScore(request.Problem, request.TimeTaken, request.Speed) : 0;
 
             return Ok(new { isValid, score });
         }
@@ -44,7 +41,7 @@ namespace CarMathGame.Controllers
             {
                 var player = await _gameService.GetOrCreatePlayerAsync(session.Player.Username);
                 session.PlayerId = player.Id;
-                session.Player = null; // Avoid circular reference in JSON
+                session.Player = null;
             }
 
             await _gameService.SaveGameSessionAsync(session);
@@ -85,6 +82,7 @@ namespace CarMathGame.Controllers
         public MathProblem Problem { get; set; } = new();
         public int Answer { get; set; }
         public TimeSpan TimeTaken { get; set; }
+        public int Speed { get; set; }
     }
 
     public class PlayerRequest
