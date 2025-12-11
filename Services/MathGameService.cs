@@ -12,10 +12,12 @@ namespace CarMathGame.Services
     {
         private readonly Random _random = new();
         private readonly GameDbContext _context;
+        private readonly ILogger<MathGameService> _logger;
 
-        public MathGameService(GameDbContext context)
+        public MathGameService(GameDbContext context, ILogger<MathGameService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public MathProblem GenerateProblem(int speed)
@@ -106,25 +108,40 @@ namespace CarMathGame.Services
 
         public async Task<Player> GetOrCreatePlayerAsync(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
+            try
             {
-                username = "Player_" + Guid.NewGuid().ToString()[..8];
-            }
-
-            var player = await _context.Players
-                .FirstOrDefaultAsync(p => p.Username == username);
-
-            if (player == null)
-            {
-                player = new Player
+                if (string.IsNullOrWhiteSpace(username))
                 {
-                    Username = username
-                };
-                _context.Players.Add(player);
-                await _context.SaveChangesAsync();
-            }
+                    username = "Player_" + Guid.NewGuid().ToString()[..8];
+                }
 
-            return player;
+                // Clean the username
+                username = username.Trim();
+
+                var player = await _context.Players
+                    .FirstOrDefaultAsync(p => p.Username == username);
+
+                if (player == null)
+                {
+                    player = new Player
+                    {
+                        Username = username,
+                        CreatedAt = DateTime.UtcNow,
+                        TotalGamesPlayed = 0,
+                        TotalScore = 0
+                    };
+                    _context.Players.Add(player);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Created new player: {username} (ID: {player.Id})");
+                }
+
+                return player;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in GetOrCreatePlayerAsync: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<Player?> GetPlayerByUsernameAsync(string username)
@@ -146,46 +163,85 @@ namespace CarMathGame.Services
 
         public async Task SaveGameSessionAsync(GameSession session)
         {
-            // If playerId is 0, create a new player with the provided name
-            if (session.PlayerId == 0 && !string.IsNullOrEmpty(session.Player?.Username))
+            try
             {
-                var player = await GetOrCreatePlayerAsync(session.Player.Username);
-                session.PlayerId = player.Id;
-                session.Player = null;
+                _logger.LogInformation($"Saving game session for player: {session.Player?.Username}");
+
+                // If no playerId, get or create player
+                if (session.PlayerId == 0 && !string.IsNullOrEmpty(session.Player?.Username))
+                {
+                    var player = await GetOrCreatePlayerAsync(session.Player.Username);
+                    session.PlayerId = player.Id;
+                    session.Player = null; // Clear to avoid circular reference
+                }
+
+                // Set timestamps if not set
+                if (session.StartedAt == default)
+                    session.StartedAt = DateTime.UtcNow.AddMinutes(-1); // Default to 1 minute ago
+
+                if (session.CompletedAt == null)
+                    session.CompletedAt = DateTime.UtcNow;
+
+                // Add the game session
+                _context.GameSessions.Add(session);
+
+                // Update player statistics
+                var playerToUpdate = await _context.Players.FindAsync(session.PlayerId);
+                if (playerToUpdate != null)
+                {
+                    _logger.LogInformation($"Updating player stats for ID: {playerToUpdate.Id}");
+                    playerToUpdate.TotalGamesPlayed++;
+                    playerToUpdate.TotalScore += session.Score;
+                    _context.Players.Update(playerToUpdate); // Explicitly mark as modified
+                }
+                else
+                {
+                    _logger.LogWarning($"Player with ID {session.PlayerId} not found!");
+                }
+
+                // Save all changes
+                var saved = await _context.SaveChangesAsync();
+                _logger.LogInformation($"Successfully saved {saved} changes to database");
             }
-
-            _context.GameSessions.Add(session);
-
-            // Update player stats
-            var playerToUpdate = await _context.Players.FindAsync(session.PlayerId);
-            if (playerToUpdate != null)
+            catch (Exception ex)
             {
-                playerToUpdate.TotalGamesPlayed++;
-                playerToUpdate.TotalScore += session.Score;
+                _logger.LogError($"Error saving game session: {ex.Message}");
+                throw;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task<List<LeaderboardDto>> GetLeaderboardAsync(int topN = 10)
         {
-            return await _context.GameSessions
-                .Include(gs => gs.Player)
-                .Where(gs => gs.Score > 0) // Only show sessions with scores
-                .OrderByDescending(gs => gs.Score)
-                .Take(topN)
-                .Select(gs => new LeaderboardDto
-                {
-                    Username = gs.Player != null ? gs.Player.Username : "Anonymous",
-                    Score = gs.Score,
-                    CorrectAnswers = gs.CorrectAnswers,
-                    WrongAnswers = gs.WrongAnswers,
-                    TimeTakenMs = gs.TimeTakenMs,
-                    StartedAt = gs.StartedAt,
-                    CompletedAt = gs.CompletedAt
-                })
-                .AsNoTracking()
-                .ToListAsync();
+            try
+            {
+                _logger.LogInformation("Fetching leaderboard...");
+
+                var leaderboard = await _context.GameSessions
+                    .Include(gs => gs.Player)
+                    .Where(gs => gs.Score > 0)
+                    .OrderByDescending(gs => gs.Score)
+                    .Take(topN)
+                    .Select(gs => new LeaderboardDto
+                    {
+                        Username = gs.Player != null ? gs.Player.Username : "Anonymous",
+                        Score = gs.Score,
+                        CorrectAnswers = gs.CorrectAnswers,
+                        WrongAnswers = gs.WrongAnswers,
+                        TimeTakenMs = gs.TimeTakenMs,
+                        StartedAt = gs.StartedAt,
+                        CompletedAt = gs.CompletedAt
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                _logger.LogInformation($"Found {leaderboard.Count} leaderboard entries");
+                return leaderboard;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading leaderboard: {ex.Message}");
+                return new List<LeaderboardDto>();
+            }
         }
 
         public async Task<List<Player>> GetPlayerRankingsAsync(int topN = 10)

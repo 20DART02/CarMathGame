@@ -48,6 +48,8 @@ namespace CarMathGame.Controllers
             return Ok();
         }
 
+
+
         [HttpGet("leaderboard")]
         public async Task<IActionResult> GetLeaderboard()
         {

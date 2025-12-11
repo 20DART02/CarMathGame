@@ -838,15 +838,15 @@
                 if (this.gameState !== 'playing') return;
 
                 clearInterval(this.timerInterval);
-                const timeTaken = this.calculateTimeLimit() - this.currentTime;
+                const timeTaken = (this.calculateTimeLimit() - this.currentTime).toFixed(2);
 
                 // Move car to the chosen lane
                 this.moveCarToLane(lane);
 
-                // First check locally for immediate feedback
+                // Calculate correct answer first
                 const isCorrect = this.currentProblem.correctAnswer === selectedAnswer;
 
-                // Show immediate visual feedback
+                // Visual feedback IMMEDIATELY - show correct answer in green
                 const buttons = document.querySelectorAll('.lane-btn');
                 buttons.forEach((btn, index) => {
                     btn.disabled = true;
@@ -855,24 +855,26 @@
                     const btnValue = parseInt(btn.textContent);
                     const isThisCorrect = btnValue === this.currentProblem.correctAnswer;
 
-                    setTimeout(() => {
-                        if (isThisCorrect) {
-                            btn.classList.add('correct');
-                        } else if (index + 1 === lane && !isCorrect) {
-                            btn.classList.add('wrong');
-                        }
-                    }, 300);
+                    // Show correct answer in green immediately
+                    if (isThisCorrect) {
+                        setTimeout(() => btn.classList.add('correct'), 100);
+                    }
+
+                    // Show wrong clicked answer in red (only if wrong)
+                    if (index + 1 === lane && !isCorrect) {
+                        setTimeout(() => btn.classList.add('wrong'), 100);
+                    }
                 });
 
-                // Calculate score locally first
+                // Calculate score
                 let earnedScore = 0;
                 if (isCorrect) {
-                    earnedScore = this.calculateLocalScore(timeTaken);
+                    earnedScore = this.calculateLocalScore(parseFloat(timeTaken));
                 }
 
-                // Then try to save to backend (non-blocking)
+                // Send to backend (but don't block on it)
                 try {
-                    await fetch('/api/game/validate-answer', {
+                    const response = await fetch('/api/game/validate-answer', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -884,18 +886,26 @@
                             speed: this.speed
                         })
                     });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        // Use backend score if available
+                        if (result.isValid) {
+                            earnedScore = result.score || earnedScore;
+                        }
+                    }
                 } catch (error) {
-                    console.error('Error validating answer (non-critical):', error);
-                    // Continue with local validation
+                    console.log('Backend validation skipped, using local validation');
                 }
 
-                // Process the answer based on local validation
+                // Process the answer
                 if (isCorrect) {
                     this.handleCorrectAnswer(earnedScore);
                 } else {
                     this.handleWrongAnswer();
                 }
 
+                // Wait before next problem
                 setTimeout(() => {
                     if (this.gameState === 'playing') {
                         this.nextProblem();
@@ -904,10 +914,10 @@
             }
 
             calculateLocalScore(timeTaken) {
-                const baseScore = 50; // Base score for correct answer
-                const timeBonus = Math.max(0, 3 - timeTaken) * 20; // Bonus for quick answers
-                const speedBonus = this.speed * 0.5; // Bonus for higher speed
-                const comboBonus = this.combo * 10; // Bonus for combo
+                const baseScore = 100; // Base score for correct answer
+                const timeBonus = Math.max(0, 3 - timeTaken) * 30; // Bonus for quick answers
+                const speedBonus = this.speed * 0.8; // Bonus for higher speed
+                const comboBonus = this.combo * 15; // Bonus for combo
 
                 return Math.floor(baseScore + timeBonus + speedBonus + comboBonus);
             }
